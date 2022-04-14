@@ -1,5 +1,57 @@
-# nodejs_client
-The Nodejs client for Booste
+# Banana Node/TypeScript SDK
+
+### Getting Started
+
+Install via npm
+`npm install @banana-dev/banana-dev`
+
+Get your API Key
+- [Sign in / log in here](https://app.banana.dev)
+
+Run:
+```javascript
+import banana = require("@banana-dev/banana-dev")
+
+const apiKey = "YOUR_API_KEY"
+const modelKey = "YOUR_MODEL_KEY"
+
+const modelInputs = {
+    // a json specific to your model. For example:
+    "a":  1,
+    "b":  2,
+}
+
+let run = async () => {
+    var out = await banana.run(apiKey, modelKey, modelInputs)
+    console.log(out)
+}
+run()
+
+```
+
+Return type:
+```javascript
+{
+    "id": "12345678-1234-1234-1234-123456789012", 
+    "message": "success", 
+    "created": 1649712752, 
+    "apiVersion": "26 Nov 2021", 
+    "modelOutputs": [
+        {
+            // a json specific to your model. In this example, the sum of "a" and "b" from the above model_parameters
+            "sum": 3, 
+        }
+    ]
+}
+```
+
+Parse the server output:
+```javascript
+modelOut = out["modelOutputs"][0]
+```
+
+# ----------------------
+# Developing on the SDK:
 
 # Building
 Run the typescript compiler in watch mode. If it fails using the npx command just run without npx
@@ -25,19 +77,4 @@ Both the main package code in module and the testing code are compiled with type
 npx tsc -w 
 
 in test dir you can use JS or import the js sdk from test script
-modify index.ts to contain the following:
-
-```javascript
-import  banana = require("@banana-dev/banana-dev")
-const  apiKey = {API KEY}
-const  modelKey = {MODEL KEY}
-const  modelInputs = {
-    "a":  1,
-    "b":  10,
-}
-let  run = async () => {
-    var  out = await  banana.run(apiKey, modelKey, modelInputs)
-    console.log(out)
-}
-run()
-```
+modify index.ts to contain the code snippet above.
