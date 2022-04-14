@@ -12,8 +12,8 @@ if ("BANANA_URL" in process.env){
 }
 
 
-export async function runMain(apiKey: string, modelKey: string, modelInputs: object = {}, strategy: object = {}): Promise<object>{
-    const callID = await startAPI(apiKey, modelKey, modelInputs, strategy)
+export async function runMain(apiKey: string, modelKey: string, modelInputs: object = {}): Promise<object>{
+    const callID = await startAPI(apiKey, modelKey, modelInputs)
     while (true) {
         const jsonOut = await checkAPI(apiKey, callID)
         if (jsonOut !== undefined){
@@ -26,8 +26,8 @@ export async function runMain(apiKey: string, modelKey: string, modelInputs: obj
 
 }
 
-export async function startMain(apiKey: string, modelKey: string, modelInputs: object = {}, strategy: object = {}): Promise<string>{
-    const callID = await startAPI(apiKey, modelKey, modelInputs, strategy)
+export async function startMain(apiKey: string, modelKey: string, modelInputs: object = {}): Promise<string>{
+    const callID = await startAPI(apiKey, modelKey, modelInputs)
     return callID
 }
 
@@ -41,7 +41,7 @@ export async function checkMain(apiKey: string, callID: string): Promise<object>
     return jsonOut
 }
 
-const startAPI = async (apiKey: string, modelKey: string, modelInputs: object, strategy: object): Promise<string> => {
+const startAPI = async (apiKey: string, modelKey: string, modelInputs: object): Promise<string> => {
     const urlStart = endpoint.concat("start/v2/")
     const payload = {
         "id": uuidv4(),
@@ -49,7 +49,6 @@ const startAPI = async (apiKey: string, modelKey: string, modelInputs: object, s
         "apiKey" : apiKey,
         "modelKey" : modelKey,
         "modelInputs" : modelInputs,
-        "strategy" : strategy
     }
     
     const response = await axios.post(urlStart, payload).catch(err => {
