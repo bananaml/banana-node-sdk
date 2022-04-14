@@ -12,13 +12,12 @@ Run:
 ```javascript
 import banana = require("@banana-dev/banana-dev")
 
-const apiKey = "YOUR_API_KEY"
-const modelKey = "YOUR_MODEL_KEY"
+const apiKey = "demo" // "YOUR_API_KEY"
+const modelKey = "carrot" // "YOUR_MODEL_KEY"
 
 const modelInputs = {
     // a json specific to your model. For example:
-    "a":  1,
-    "b":  2,
+    "imageURL":  "https://demo-images-banana.s3.us-west-1.amazonaws.com/image2.jpg"
 }
 
 let run = async () => {
@@ -38,8 +37,8 @@ Return type:
     "apiVersion": "26 Nov 2021", 
     "modelOutputs": [
         {
-            // a json specific to your model. In this example, the sum of "a" and "b" from the above model_parameters
-            "sum": 3, 
+            // a json specific to your model. In this example, the caption of the image
+            "caption": "a baseball player throwing a ball"
         }
     ]
 }
