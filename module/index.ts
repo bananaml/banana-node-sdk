@@ -16,11 +16,6 @@ export async function start(apiKey: string, modelKey: string, modelInputs: objec
   return callID
 }
 
-export async function feedback(apiKey: string, callID: string, feedback: object = {}): Promise<object>{
-  const jsonOut = await genericsUtils.feedback(apiKey, callID, feedback)
-  return jsonOut
-}
-
 export async function check(apiKey: string, callID: string): Promise<object>{
   const jsonOut = await genericsUtils.checkMain(apiKey, callID)
   return jsonOut
