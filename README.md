@@ -10,7 +10,7 @@ Get your API Key
 
 Run:
 ```javascript
-const banana = require("@banana-dev/banana-dev")
+import banana from "@banana-dev/banana-dev"
 
 const apiKey = "demo" // "YOUR_API_KEY"
 const modelKey = "carrot" // "YOUR_MODEL_KEY"
