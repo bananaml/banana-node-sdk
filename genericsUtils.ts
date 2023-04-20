@@ -99,11 +99,11 @@ async function getBananaJsonOutput(response: Response) {
 }
 
 export class BananaError extends Error {
-    jsonOutput: any
-    constructor(message: string, jsonOutput: any = null) {
+    json: Object
+    constructor(message: string, json: any = null) {
         super(message)
         this.name = "BananaError"
-        this.jsonOutput = jsonOutput
+        this.json = json
     }
 }
 
