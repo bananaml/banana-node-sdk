@@ -1,6 +1,6 @@
 {
   "name": "@banana-dev/banana-dev",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "A typescript-friendly node client to interact with Banana's machine learning inference APIs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,11 +10,8 @@
   "author": "Banana",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.21.0",
-    "image-to-base64": "^2.1.1",
-    "utf8": "^3.0.0",
-    "uuid": "^8.3.2",
-    "valid-url": "^1.0.9"
+    "native-fetch": "^4.0.2",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/node": "^17.0.13"
