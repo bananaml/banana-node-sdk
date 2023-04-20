@@ -1,9 +1,9 @@
-import genericsUtils = require("./genericsUtils")
+import {checkMain, runMain, startMain, BananaError} from "./genericsUtils"
 
 type Object = { [key: string]: any }
 
 export async function run(apiKey: string, modelKey: string, modelInputs: object = {}): Promise<Object>{
-  const out = await genericsUtils.runMain(
+  const out = await runMain(
     apiKey = apiKey, 
     modelKey = modelKey,
     modelInputs=modelInputs)
@@ -11,7 +11,7 @@ export async function run(apiKey: string, modelKey: string, modelInputs: object 
 }
 
 export async function start(apiKey: string, modelKey: string, modelInputs: object = {}): Promise<string>{
-  const callID = await genericsUtils.startMain(
+  const callID = await startMain(
     apiKey = apiKey, 
     modelKey = modelKey,
     modelInputs=modelInputs)
@@ -19,6 +19,8 @@ export async function start(apiKey: string, modelKey: string, modelInputs: objec
 }
 
 export async function check(apiKey: string, callID: string): Promise<Object>{
-  const jsonOut = await genericsUtils.checkMain(apiKey, callID)
+  const jsonOut = await checkMain(apiKey, callID)
   return jsonOut
 }
+
+export { BananaError }

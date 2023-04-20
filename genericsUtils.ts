@@ -98,7 +98,7 @@ async function getBananaJsonOutput(response: Response) {
     return jsonOut
 }
 
-class BananaError extends Error {
+export class BananaError extends Error {
     jsonOutput: any
     constructor(message: string, jsonOutput: any = null) {
         super(message)
