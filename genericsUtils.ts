@@ -78,24 +78,33 @@ async function getBananaJsonOutput(response: Response) {
     try {
         jsonOut = JSON.parse(text)
     } catch {
-        throw new Error(`Could not parse response from server: ${text}`)
+        throw new BananaError(`Could not parse response from server: ${text}`, )
     }
     
     if (!response.ok) {
         if (jsonOut.response) {
-            throw new Error(`${response.status}: server error: status code ${jsonOut.response.status}`)
+            throw new BananaError(`${response.status}: server error: status code ${jsonOut.response.status}`, jsonOut)
         } else if (jsonOut.request) {
-            throw new Error( `${response.status}: server error: endpoint busy or not available.`)
+            throw new BananaError( `${response.status}: server error: endpoint busy or not available.`, jsonOut)
         } else {
             console.log(jsonOut)
-            throw new Error("${response.status}: misc error. Please email erik@banana.dev with above error")
+            throw new BananaError(`${response.status}: misc error. Please email erik@banana.dev with above error`, jsonOut)
         }
     }
 
     if (jsonOut.message.toLowerCase().includes("error")){
-        throw new Error(jsonOut.message)
+        throw new BananaError(jsonOut.message, jsonOut)
     }
     return jsonOut
+}
+
+class BananaError extends Error {
+    jsonOutput: any
+    constructor(message: string, jsonOutput: any = null) {
+        super(message)
+        this.name = "BananaError"
+        this.jsonOutput = jsonOutput
+    }
 }
 
 const checkAPI = async (apiKey: string, callID: string): Promise<any> => {
