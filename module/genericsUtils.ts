@@ -1,4 +1,4 @@
-import axios, {AxiosError} from 'axios'
+import { fetch } from 'native-fetch'
 const { v4: uuidv4 } = require('uuid')
 
 let endpoint: string = 'https://api.banana.dev/'
@@ -11,8 +11,9 @@ if ("BANANA_URL" in process.env){
     }
 }
 
+type Object = { [key: string]: any }
 
-export async function runMain(apiKey: string, modelKey: string, modelInputs: object = {}): Promise<any>{
+export async function runMain(apiKey: string, modelKey: string, modelInputs: Object = {}): Promise<any>{
     const startOut = await startAPI(apiKey, modelKey, modelInputs)
     if (startOut["finished"] == true){
         const res = {
@@ -37,18 +38,18 @@ export async function runMain(apiKey: string, modelKey: string, modelInputs: obj
 
 }
 
-export async function startMain(apiKey: string, modelKey: string, modelInputs: object = {}): Promise<string>{
+export async function startMain(apiKey: string, modelKey: string, modelInputs: Object = {}): Promise<string>{
     const jsonOut = await startAPI(apiKey, modelKey, modelInputs, true)
     return jsonOut["callID"]
 }
 
 
-export async function checkMain(apiKey: string, callID: string): Promise<object>{
+export async function checkMain(apiKey: string, callID: string): Promise<Object>{
     const jsonOut = await checkAPI(apiKey, callID)
     return jsonOut
 }
 
-const startAPI = async (apiKey: string, modelKey: string, modelInputs: object, startOnly: boolean = false): Promise<any> => {
+const startAPI = async (apiKey: string, modelKey: string, modelInputs: Object, startOnly: boolean = false): Promise<any> => {
     const urlStart = endpoint.concat("start/v4/")
     const payload = {
         "id": uuidv4(),
@@ -59,22 +60,41 @@ const startAPI = async (apiKey: string, modelKey: string, modelInputs: object, s
         "startOnly": startOnly,
     }
     
-    const response = await axios.post(urlStart, payload).catch(err => {
-        if (err.response) {
-            throw `server error: status code ${err.response.status}`
-        } else if (err.request) {
-            throw 'server error: endpoint busy or not available.'
-        } else {
-            console.log(err)
-            throw "Misc axios error. Please email erik@banana.dev with above error"
+    const response = await fetch(urlStart, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: {
+            'Content-Type': 'application/json'
         }
     })
-    const jsonOut = response.data
+    const jsonOut = await getBananaJsonOutput(response)
+
+    return jsonOut
+}
+
+async function getBananaJsonOutput(response: Response) {
+    const text = await response.text()
+    let jsonOut: any = null
+    try {
+        jsonOut = JSON.parse(text)
+    } catch {
+        throw new Error(`Could not parse response from server: ${text}`)
+    }
     
-    if (jsonOut.message.toLowerCase().includes("error")){
-        throw jsonOut.message
+    if (!response.ok) {
+        if (jsonOut.response) {
+            throw new Error(`${response.status}: server error: status code ${jsonOut.response.status}`)
+        } else if (jsonOut.request) {
+            throw new Error( `${response.status}: server error: endpoint busy or not available.`)
+        } else {
+            console.log(jsonOut)
+            throw new Error("${response.status}: misc error. Please email erik@banana.dev with above error")
+        }
     }
 
+    if (jsonOut.message.toLowerCase().includes("error")){
+        throw new Error(jsonOut.message)
+    }
     return jsonOut
 }
 
@@ -88,21 +108,14 @@ const checkAPI = async (apiKey: string, callID: string): Promise<any> => {
         "apiKey" : apiKey,
          "callID" : callID
     }
-    
-    const response = await axios.post(urlCheck, payload).catch(err => {
-        if (err.response) {
-            throw `server error: status code ${err.response.status}`
-        } else if (err.request) {
-            throw 'server error: endpoint busy or not available.'
-        } else {
-            console.log(err)
-            throw "Misc axios error. Please email erik@banana.dev with above error"
+    const response = await fetch(urlCheck, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: {
+            'Content-Type': 'application/json'
         }
     })
-    const jsonOut = response.data
-    
-    if (jsonOut.message.toLowerCase().includes("error")){
-        throw jsonOut.message
-    }
+
+    const jsonOut = await getBananaJsonOutput(response)
     return jsonOut
 }
