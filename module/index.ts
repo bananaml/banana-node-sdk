@@ -9,39 +9,39 @@ export class ClientException extends Error {
 }
 
 export class Client {
-  private api_key: string;
-  private model_key: string;
+  private apiKey: string;
+  private modelKey: string;
   private url: string;
   private verbose: boolean;
 
-  constructor(api_key: string, model_key: string, url: string, verbose: boolean = true) {
-    this.api_key = api_key;
-    this.model_key = model_key;
+  constructor(apiKey: string, modelKey: string, url: string, verbose: boolean = true) {
+    this.apiKey = apiKey;
+    this.modelKey = modelKey;
     this.url = url;
     this.verbose = verbose;
   }
 
-  public call = async (route: string, json: object = {}, headers: object = {}, retry = true, retry_timeout = 300) => {
+  public call = async (route: string, json: object = {}, headers: object = {}, retry = true, retryTimeout = 300) => {
     const endpoint = `${this.url.replace(/\/$/, '')}/${route.replace(/^\//, '')}`;
 
-    let backoff_interval = 0.1;
+    let backoffInterval = 0.1;
     const start = Date.now();
-    let first_call = true;
+    let firstCall = true;
 
     while (true) {
-      if (Date.now() - start > retry_timeout) {
+      if (Date.now() - start > retryTimeout) {
         throw new ClientException('Retry timeout exceeded');
       }
 
-      if (first_call) {
-        first_call = false;
+      if (firstCall) {
+        firstCall = false;
       } else {
         if (this.verbose) {
           console.log('Retrying...');
         }
       }
 
-      backoff_interval *= 2;
+      backoffInterval *= 2;
 
       const res = await this.makeRequest(endpoint, json, headers);
 
@@ -50,40 +50,66 @@ export class Client {
         console.log(res.body);
       }
 
+      // success case -> return json and metadata
       if (res.statusCode === 200) {
+        // parse res.headers of type http.IncomingHttpHeaders to object
         const meta = { headers: res.headers };
         try {
-          return JSON.parse(res.body), meta;
+          const json = JSON.parse(res.body);
+          
+          return [json, meta];
         } catch {
           throw new ClientException(res.body);
         }
-      } else if (res.statusCode === 400) { // user at their quota, retry
+      
+      } 
+      
+      // user at their quota -> retry
+      else if (res.statusCode === 400) { // user at their quota, retry
         if (!retry) {
           throw new ClientException(res.body);
         }
-        await this.sleep(backoff_interval);
+        await this.sleep(backoffInterval);
         continue;
-      } else if (res.statusCode === 401 || res.statusCode === 404 || res.statusCode === 413) {
+      } 
+      
+      // bad auth || endpoint doesn't exist || payload too large -> throw
+      else if (res.statusCode === 401 || res.statusCode === 404 || res.statusCode === 413) {
         throw new ClientException(res.body);
-      } else if (res.statusCode === 418) {
+      } 
+      
+      // banana is a teapot -> throw
+      else if (res.statusCode === 418) {
         throw new ClientException('banana is a teapot');
-      } else if (res.statusCode === 423) { // potassium threw an error, lock and retry
+      } 
+      
+      // potassium threw locked error -> retry
+      else if (res.statusCode === 423) {
         if (!retry) {
           let message = res.body;
           message += '423 errors are returned by Potassium when your server(s) are all busy handling GPU endpoints.\nIn most cases, you just want to retry later. Running banana.call() with the retry=true argument handles this for you.';
           throw new ClientException(message);
         }
-        await this.sleep(backoff_interval);
+        await this.sleep(backoffInterval);
         continue;
-      } else if (res.statusCode === 500) {
+      } 
+      
+      // user's server had an unrecoverable error -> throw
+      else if (res.statusCode === 500) {
         throw new ClientException(res.body);
-      } else if (res.statusCode === 503) { // banana had a temporary error, retry
+      } 
+      
+      // banana had a temporary error -> retry
+      else if (res.statusCode === 503) { // banana had a temporary error, retry
         if (!retry) {
           throw new ClientException(res.body);
         }
-        await this.sleep(backoff_interval);
+        await this.sleep(backoffInterval);
         continue;
-      } else {
+      } 
+      
+      
+      else {
         throw new ClientException(`Unexpected HTTP response code: ${res.statusCode}`);
       }
     }
@@ -98,8 +124,8 @@ export class Client {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-BANANA-API-KEY': this.api_key,
-          'X-BANANA-MODEL-KEY': this.model_key,
+          'X-BANANA-API-KEY': this.apiKey,
+          'X-BANANA-MODEL-KEY': this.modelKey,
           ...headers,
         },
       }, (res) => {
