@@ -57,7 +57,7 @@ export class Client {
         try {
           const json = JSON.parse(res.body);
           
-          return [json, meta];
+          return {json, meta};
         } catch {
           throw new ClientException(res.body);
         }
