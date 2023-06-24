@@ -21,15 +21,16 @@ export class Client {
     this.verbose = verbose;
   }
 
-  public call = async (route: string, json: object = {}, headers: object = {}, retry = true, retryTimeout = 300) => {
+  public call = async (route: string, json: object = {}, headers: object = {}, retry = true, retryTimeoutMs = 300000) => {
     const endpoint = `${this.url.replace(/\/$/, '')}/${route.replace(/^\//, '')}`;
 
-    let backoffInterval = 0.1;
+    let MAX_BACKOFF_INTERVAL = 3000
+    let backoffIntervalMs = 100;
     const start = Date.now();
     let firstCall = true;
 
     while (true) {
-      if (Date.now() - start > retryTimeout) {
+      if (Date.now() - start > retryTimeoutMs) {
         throw new ClientException('Retry timeout exceeded');
       }
 
@@ -41,7 +42,7 @@ export class Client {
         }
       }
 
-      backoffInterval *= 2;
+      backoffIntervalMs = Math.min(backoffIntervalMs*2, MAX_BACKOFF_INTERVAL); // at most wait MAX_BACKOFF_INTERVAL ms
 
       const res = await this.makeRequest(endpoint, json, headers);
 
@@ -69,7 +70,7 @@ export class Client {
         if (!retry) {
           throw new ClientException(res.body);
         }
-        await this.sleep(backoffInterval);
+        await this.sleep(backoffIntervalMs);
         continue;
       } 
       
@@ -90,7 +91,7 @@ export class Client {
           message += '423 errors are returned by Potassium when your server(s) are all busy handling GPU endpoints.\nIn most cases, you just want to retry later. Running banana.call() with the retry=true argument handles this for you.';
           throw new ClientException(message);
         }
-        await this.sleep(backoffInterval);
+        await this.sleep(backoffIntervalMs);
         continue;
       } 
       
@@ -104,7 +105,7 @@ export class Client {
         if (!retry) {
           throw new ClientException(res.body);
         }
-        await this.sleep(backoffInterval);
+        await this.sleep(backoffIntervalMs);
         continue;
       } 
       
