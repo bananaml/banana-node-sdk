@@ -1,6 +1,6 @@
 {
   "name": "@banana-dev/banana-dev",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "A typescript-friendly node client to interact with Banana's machine learning inference APIs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
