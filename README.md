@@ -66,11 +66,14 @@ mkdir tests
 cd tests
 npx tsc --init
 cd ../module
+npm install
 npm link
 cd ../tests
 npm link @banana-dev/banana-dev
 npx tsc -w
 ```
+
+If you're seeing any import errors make sure you've ran npm install in the module directory
 
 Both the main package code in module and the testing code are compiled with typescript. Compile the tests folder and watch updates live
 npx tsc -w 

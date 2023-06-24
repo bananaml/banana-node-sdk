@@ -1,6 +1,6 @@
 {
   "name": "@banana-dev/banana-dev",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "A typescript-friendly node client to interact with Banana's machine learning inference APIs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -12,6 +12,7 @@
   "dependencies": {
     "axios": "^0.21.0",
     "image-to-base64": "^2.1.1",
+    "typescript": "^5.1.3",
     "utf8": "^3.0.0",
     "uuid": "^8.3.2",
     "valid-url": "^1.0.9"
