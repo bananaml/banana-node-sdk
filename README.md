@@ -10,43 +10,23 @@ Get your API Key
 
 Run:
 ```javascript
-import banana = require("@banana-dev/banana-dev")
+import { Client } from "@banana-dev/banana-dev"
 
-const apiKey = "demo" // "YOUR_API_KEY"
-const modelKey = "carrot" // "YOUR_MODEL_KEY"
+const my_model = new Client(
+    "YOUR_API_KEY", // Found in dashboard
+    "YOUR_MODEL_KEY", // Found in model view in dashboard
+    "https://YOUR_URL.run.banana.dev", // Found in model view in dashboard
+    true // verbosity
+)
 
-const modelInputs = {
-    // a json specific to your model. For example:
-    "imageURL":  "https://demo-images-banana.s3.us-west-1.amazonaws.com/image2.jpg"
+// Specify the model's input JSON
+const inputs = {
+    prompt: "I like [MASK].",
 }
 
-let run = async () => {
-    var out = await banana.run(apiKey, modelKey, modelInputs)
-    console.log(out)
-}
-run()
-
-```
-
-Return type:
-```javascript
-{
-    "id": "12345678-1234-1234-1234-123456789012", 
-    "message": "success", 
-    "created": 1649712752, 
-    "apiVersion": "26 Nov 2021", 
-    "modelOutputs": [
-        {
-            // a json specific to your model. In this example, the caption of the image
-            "caption": "a baseball player throwing a ball"
-        }
-    ]
-}
-```
-
-Parse the server output:
-```javascript
-modelOut = out["modelOutputs"][0]
+// Call your model's inference endpoint on Banana 
+const {json, meta } = await my_model.call("/", inputs)
+console.log(json)
 ```
 
 # ----------------------

@@ -108,7 +108,12 @@ export class Client {
         await this.sleep(backoffIntervalMs);
         continue;
       } 
-      
+
+      // gateway timeout
+      else if (res.statusCode === 504) {
+        const message = "Reached timeout limit of 5min. To avoid this we recommend using a app.background() handler."
+        throw new ClientException(message);
+      } 
       
       else {
         throw new ClientException(`Unexpected HTTP response code: ${res.statusCode}`);
