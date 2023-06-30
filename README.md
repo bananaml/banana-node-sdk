@@ -16,7 +16,7 @@ const my_model = new Client(
     "YOUR_API_KEY", // Found in dashboard
     "YOUR_MODEL_KEY", // Found in model view in dashboard
     "https://YOUR_URL.run.banana.dev", // Found in model view in dashboard
-    true
+    true // verbosity
 )
 
 // Specify the model's input JSON
