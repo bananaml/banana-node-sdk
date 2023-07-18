@@ -1,33 +1,8 @@
 # Banana Node/TypeScript SDK
 
-### Getting Started
+# Usage
 
-Install via npm
-`npm install @banana-dev/banana-dev`
-
-Get your API Key
-- [Sign in / log in here](https://app.banana.dev)
-
-Run:
-```javascript
-import { Client } from "@banana-dev/banana-dev"
-
-const my_model = new Client(
-    "YOUR_API_KEY", // Found in dashboard
-    "YOUR_MODEL_KEY", // Found in model view in dashboard
-    "https://YOUR_URL.run.banana.dev", // Found in model view in dashboard
-    true // verbosity
-)
-
-// Specify the model's input JSON
-const inputs = {
-    prompt: "I like [MASK].",
-}
-
-// Call your model's inference endpoint on Banana 
-const {json, meta } = await my_model.call("/", inputs)
-console.log(json)
-```
+For usage docs please refer to our [Banana SDK documentation](https://docs.banana.dev/banana-docs/core-concepts/sdks/node.js)
 
 # ----------------------
 # Developing on the SDK:
