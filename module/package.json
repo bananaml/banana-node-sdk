@@ -18,6 +18,7 @@
     "valid-url": "^1.0.9"
   },
   "devDependencies": {
-    "@types/node": "^17.0.13"
+    "@types/node": "^17.0.13",
+    "@types/uuid": "^9.0.3"
   }
 }

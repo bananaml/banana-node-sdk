@@ -1,5 +1,6 @@
 import * as http from 'http';
 import * as https from 'https';
+import { v4 as uuidv4 } from 'uuid';
 
 export class ClientException extends Error {
   constructor(message: string) {
@@ -23,6 +24,14 @@ export class Client {
 
   public call = async (route: string, json: object = {}, headers: object = {}, retry = true, retryTimeoutMs = 300000) => {
     const endpoint = `${this.url.replace(/\/$/, '')}/${route.replace(/^\//, '')}`;
+
+    headers = {
+      'Content-Type': 'application/json',
+      'X-BANANA-API-KEY': this.apiKey,
+      'X-BANANA-MODEL-KEY': this.modelKey,
+      'X-BANANA-REQUEST-ID': uuidv4(), // we use the same uuid to track all retries
+      ...headers,
+    }
 
     let MAX_BACKOFF_INTERVAL = 3000
     let backoffIntervalMs = 100;
@@ -128,12 +137,7 @@ export class Client {
 
       const req = protocol.request(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-BANANA-API-KEY': this.apiKey,
-          'X-BANANA-MODEL-KEY': this.modelKey,
-          ...headers,
-        },
+        headers: {...headers,},
       }, (res) => {
         let body = '';
 
