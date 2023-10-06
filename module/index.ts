@@ -11,15 +11,13 @@ export class ClientException extends Error {
 
 export class Client {
   private apiKey: string;
-  private modelKey: string;
   private url: string;
-  private verbose: boolean;
+  private verbosity: string;
 
-  constructor(apiKey: string, modelKey: string, url: string, verbose: boolean = true) {
+  constructor(apiKey: string, url: string, verbosity: string = "DEBUG") {
     this.apiKey = apiKey;
-    this.modelKey = modelKey;
     this.url = url;
-    this.verbose = verbose;
+    this.verbosity = verbosity;
   }
 
   public call = async (route: string, json: object = {}, headers: object = {}, retry = true, retryTimeoutMs = 300000) => {
@@ -28,7 +26,6 @@ export class Client {
     headers = {
       'Content-Type': 'application/json',
       'X-BANANA-API-KEY': this.apiKey,
-      'X-BANANA-MODEL-KEY': this.modelKey,
       'X-BANANA-REQUEST-ID': uuidv4(), // we use the same uuid to track all retries
       ...headers,
     }
@@ -46,7 +43,7 @@ export class Client {
       if (firstCall) {
         firstCall = false;
       } else {
-        if (this.verbose) {
+        if (this.verbosity === "DEBUG") {
           console.log('Retrying...');
         }
       }
@@ -55,7 +52,7 @@ export class Client {
 
       const res = await this.makeRequest(endpoint, json, headers);
 
-      if (this.verbose && res.statusCode !== 200) {
+      if (this.verbosity === "DEBUG" && res.statusCode !== 200) {
         console.log('Status code:', res.statusCode);
         console.log(res.body);
       }

@@ -1,6 +1,6 @@
 {
   "name": "@banana-dev/banana-dev",
-  "version": "5.1.0",
+  "version": "6.0.0",
   "description": "A typescript-friendly node client to interact with Banana's machine learning inference APIs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,6 +19,6 @@
   },
   "devDependencies": {
     "@types/node": "^17.0.13",
-    "@types/uuid": "^9.0.3"
+    "@types/uuid": "^9.0.4"
   }
 }
