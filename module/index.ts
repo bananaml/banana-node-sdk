@@ -135,10 +135,10 @@ export class Client {
       const req = protocol.request(url, {
         method: 'POST',
         headers: {...headers,},
-      }, (res) => {
+      }, (res: http.IncomingMessage) => {
         let body = '';
 
-        res.on('data', (chunk) => {
+        res.on('data', (chunk: any) => {
           body += chunk;
         });
 
@@ -147,7 +147,7 @@ export class Client {
         });
       });
 
-      req.on('error', (error) => {
+      req.on('error', (error: Error) => {
         reject(error);
       });
 
