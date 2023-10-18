@@ -23,8 +23,9 @@ npx tsc --init
 cd ../module
 npm install
 npm link
+npx tsc
 cd ../tests
-npm link @banana-dev/banana-dev
+npm install --save ../module
 npx tsc -w
 ```
 
