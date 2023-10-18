@@ -20,6 +20,10 @@ export class Client {
     this.verbosity = verbosity;
   }
 
+  public warmup = async () => {
+    return this.call('/_k/warmup', {}, {}, false);
+  }
+
   public call = async (route: string, json: object = {}, headers: object = {}, retry = true, retryTimeoutMs = 300000) => {
     const endpoint = `${this.url.replace(/\/$/, '')}/${route.replace(/^\//, '')}`;
 
