@@ -20,6 +20,10 @@ export class Client {
     this.verbosity = verbosity;
   }
 
+  public warmup = async () => {
+    return this.call('/_k/warmup', {}, {}, false);
+  }
+
   public call = async (route: string, json: object = {}, headers: object = {}, retry = true, retryTimeoutMs = 300000) => {
     const endpoint = `${this.url.replace(/\/$/, '')}/${route.replace(/^\//, '')}`;
 
@@ -135,10 +139,10 @@ export class Client {
       const req = protocol.request(url, {
         method: 'POST',
         headers: {...headers,},
-      }, (res) => {
+      }, (res: http.IncomingMessage) => {
         let body = '';
 
-        res.on('data', (chunk) => {
+        res.on('data', (chunk: string) => {
           body += chunk;
         });
 
@@ -147,7 +151,7 @@ export class Client {
         });
       });
 
-      req.on('error', (error) => {
+      req.on('error', (error: Error) => {
         reject(error);
       });
 
