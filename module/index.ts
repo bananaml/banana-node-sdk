@@ -142,7 +142,7 @@ export class Client {
       }, (res: http.IncomingMessage) => {
         let body = '';
 
-        res.on('data', (chunk: any) => {
+        res.on('data', (chunk: string) => {
           body += chunk;
         });
 
