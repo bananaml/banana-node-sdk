@@ -165,32 +165,28 @@ export class Client {
   };
 }
 
-const API_BASE_URL = "https://api.banana.dev/v1";
-
 export class API {
+  private baseUrl: string = "https://api.banana.dev/v1";
   private apiKey: string;
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
   }
 
-  public projects = () => {
-    return new ProjectsAPI(this.apiKey);
-  }
-}
-
-class BaseAPI {
-  private apiKey: string;
-
-  constructor(apiKey: string) {
-    this.apiKey = apiKey;
+  public listProjects = async () => {
+    return await this.makeRequest('GET', `${this.baseUrl}/projects`);
   }
 
-  protected makeRequest = async (method: string, url: string, data: object = {}, headers: object = {}) => {
-    const res = await this.makeAPIRequest(method, url, data, {
-      'X-BANANA-API-KEY': this.apiKey,
-      ...headers,
-    });
+  public getProject = async (projectId: string) => {
+    return await this.makeRequest('GET', `${this.baseUrl}/projects/${projectId}`);
+  }
+
+  public updateProject = async (projectId: string, data: object) => {
+    return await this.makeRequest('PUT', `${this.baseUrl}/projects/${projectId}`, data);
+  }
+
+  private makeRequest = async (method: string, url: string, data: object = {}, headers: object = {}) => {
+    const res = await this.makeAPIRequest(method, url, data,  headers)
     
     const meta = { headers: res.headers };
     
@@ -204,7 +200,7 @@ class BaseAPI {
     return {json, meta};
   }
 
-  protected makeAPIRequest = (method: string, url: string, data: object = {}, headers: object = {}) => {
+  private makeAPIRequest = (method: string, url: string, data: object = {}, headers: object = {}) => {
     return new Promise<{ statusCode: number, headers: http.IncomingHttpHeaders, body: string }>((resolve, reject) => {
       const protocol = url.startsWith('https') ? https : http;
 
@@ -217,7 +213,9 @@ class BaseAPI {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          ...headers,},
+          'X-BANANA-API-KEY': this.apiKey,
+          ...headers,
+        },
       }, (res: http.IncomingMessage) => {
         let body = '';
 
@@ -242,25 +240,4 @@ class BaseAPI {
       req.end();
     });
   };
-}
-
-export class ProjectsAPI extends BaseAPI {
-  private baseUrl: string;
-  
-  constructor(apiKey: string) {
-    super(apiKey);
-    this.baseUrl = `${API_BASE_URL}/projects`;
-  }
-
-  public list = async () => {
-    return await this.makeAPIRequest('GET', `${this.baseUrl}`);
-  }
-
-  public get = async (projectId: string) => {
-    return await this.makeAPIRequest('GET', `${this.baseUrl}/${projectId}`);
-  }
-
-  public update = async (projectId: string, data: object) => {
-    return await this.makeAPIRequest('PUT', `${this.baseUrl}/${projectId}`, data);
-  }
 }
