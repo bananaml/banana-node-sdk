@@ -164,3 +164,105 @@ export class Client {
     return new Promise((resolve) => setTimeout(resolve, ms));
   };
 }
+
+const API_BASE_URL = "https://api.banana.dev/v1";
+
+export class API {
+  private apiKey: string;
+  private verbosity: string;
+
+  constructor(apiKey: string, url: string, verbosity: string = "DEBUG") {
+    this.apiKey = apiKey;
+    this.verbosity = verbosity;
+  }
+
+  public projects = () => {
+    return new ProjectsAPI(this.apiKey, this.verbosity);
+  }
+}
+
+class BaseAPI {
+  private apiKey: string;
+
+  constructor(apiKey: string, verbosity: string = "DEBUG") {
+    this.apiKey = apiKey;
+  }
+
+  protected makeRequest = async (method: string, url: string, data: object = {}, headers: object = {}) => {
+    const res = await this.makeAPIRequest(method, url, data, {
+      'X-BANANA-API-KEY': this.apiKey,
+      ...headers,
+    });
+    
+    const meta = { headers: res.headers };
+    
+    let json = {}
+    try {
+      json = JSON.parse(res.body);
+    } catch {
+      //
+    }
+    
+    return {json, meta};
+  }
+
+  protected makeAPIRequest = (method: string, url: string, data: object = {}, headers: object = {}) => {
+    return new Promise<{ statusCode: number, headers: http.IncomingHttpHeaders, body: string }>((resolve, reject) => {
+      const protocol = url.startsWith('https') ? https : http;
+
+      if (method == 'GET') {
+        url += '?' + new URLSearchParams({...data}).toString();
+      }
+ 
+      const req = protocol.request(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          ...headers,},
+      }, (res: http.IncomingMessage) => {
+        let body = '';
+
+        res.on('data', (chunk: string) => {
+          body += chunk;
+        });
+
+        res.on('end', () => {
+          resolve({ statusCode: res.statusCode || 0, headers: res.headers, body });
+        });
+      });
+
+      req.on('error', (error: Error) => {
+        reject(error);
+      });
+
+      if (method === 'POST' || method == 'PUT') {
+        const json = JSON.stringify(data);
+        req.write(json);
+      }
+
+      req.end();
+    });
+  };
+}
+
+export class ProjectsAPI extends BaseAPI {
+  private baseUrl: string;
+  
+  constructor(apiKey: string, verbosity: string = "DEBUG") {
+    super(apiKey);
+    this.baseUrl = `${API_BASE_URL}/projects`;
+  }
+
+  public list = async () => {
+    return await this.makeAPIRequest('GET', `${this.baseUrl}`);
+  }
+
+  public get = async (projectId: string) => {
+    return await this.makeAPIRequest('GET', `${this.baseUrl}/${projectId}`);
+  }
+
+  public update = async (projectId: string, data: object) => {
+    return await this.makeAPIRequest('PUT', `${this.baseUrl}/${projectId}`, data);
+  }
+}
