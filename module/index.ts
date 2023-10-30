@@ -169,22 +169,20 @@ const API_BASE_URL = "https://api.banana.dev/v1";
 
 export class API {
   private apiKey: string;
-  private verbosity: string;
 
-  constructor(apiKey: string, url: string, verbosity: string = "DEBUG") {
+  constructor(apiKey: string) {
     this.apiKey = apiKey;
-    this.verbosity = verbosity;
   }
 
   public projects = () => {
-    return new ProjectsAPI(this.apiKey, this.verbosity);
+    return new ProjectsAPI(this.apiKey);
   }
 }
 
 class BaseAPI {
   private apiKey: string;
 
-  constructor(apiKey: string, verbosity: string = "DEBUG") {
+  constructor(apiKey: string) {
     this.apiKey = apiKey;
   }
 
@@ -249,7 +247,7 @@ class BaseAPI {
 export class ProjectsAPI extends BaseAPI {
   private baseUrl: string;
   
-  constructor(apiKey: string, verbosity: string = "DEBUG") {
+  constructor(apiKey: string) {
     super(apiKey);
     this.baseUrl = `${API_BASE_URL}/projects`;
   }
