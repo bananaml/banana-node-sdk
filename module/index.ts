@@ -165,6 +165,13 @@ export class Client {
   };
 }
 
+type Project = {
+  [key: string]: any
+};
+type Projects = {
+  results: Project[]
+}
+
 export class API {
   private baseUrl: string = "https://api.banana.dev/v1";
   private apiKey: string;
@@ -173,22 +180,20 @@ export class API {
     this.apiKey = apiKey.trim();
   }
 
-  public listProjects = async () => {
+  public listProjects = async (): Promise<{json: Projects}> => {
     return await this.makeRequest('GET', `${this.baseUrl}/projects`);
   }
 
-  public getProject = async (projectId: string) => {
+  public getProject = async (projectId: string): Promise<{json: Project}> => {
     return await this.makeRequest('GET', `${this.baseUrl}/projects/${projectId}`);
   }
 
-  public updateProject = async (projectId: string, data: object) => {
+  public updateProject = async (projectId: string, data: object): Promise<{json: Project}> => {
     return await this.makeRequest('PUT', `${this.baseUrl}/projects/${projectId}`, data);
   }
 
-  private makeRequest = async (method: string, url: string, data: object = {}, headers: object = {}) => {
+  private makeRequest = async (method: string, url: string, data: object = {}, headers: object = {}): Promise<{json: any}> => {
     const res = await this.makeAPIRequest(method, url, data,  headers)
-    
-    const meta = { headers: res.headers };
     
     let json = {}
     try {
@@ -197,7 +202,7 @@ export class API {
       //
     }
     
-    return {json, meta};
+    return {json};
   }
 
   private makeAPIRequest = (method: string, url: string, data: object = {}, headers: object = {}) => {
