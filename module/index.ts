@@ -170,7 +170,7 @@ export class API {
   private apiKey: string;
 
   constructor(apiKey: string) {
-    this.apiKey = apiKey;
+    this.apiKey = apiKey.trim();
   }
 
   public listProjects = async () => {
