@@ -180,21 +180,21 @@ export class API {
     this.apiKey = apiKey.trim();
   }
 
-  public listProjects = async (): Promise<{json: Projects}> => {
+  public listProjects = async (): Promise<{json: Projects, status: number}> => {
     return await this.makeRequest('GET', `${this.baseUrl}/projects`);
   }
 
-  public getProject = async (projectId: string): Promise<{json: Project}> => {
+  public getProject = async (projectId: string): Promise<{json: Project, status: number}> => {
     return await this.makeRequest('GET', `${this.baseUrl}/projects/${projectId}`);
   }
 
-  public updateProject = async (projectId: string, data: object): Promise<{json: Project}> => {
+  public updateProject = async (projectId: string, data: object): Promise<{json: Project, status: number}> => {
     return await this.makeRequest('PUT', `${this.baseUrl}/projects/${projectId}`, data);
   }
 
-  private makeRequest = async (method: string, url: string, data: object = {}, headers: object = {}): Promise<{json: any}> => {
+  private makeRequest = async (method: string, url: string, data: object = {}, headers: object = {}): Promise<{json: any, status: number}> => {
     const res = await this.makeAPIRequest(method, url, data,  headers)
-    
+
     let json = {}
     try {
       json = JSON.parse(res.body);
@@ -202,7 +202,7 @@ export class API {
       //
     }
     
-    return {json};
+    return {json, status: res.statusCode};
   }
 
   private makeAPIRequest = (method: string, url: string, data: object = {}, headers: object = {}) => {
