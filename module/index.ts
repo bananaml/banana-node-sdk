@@ -164,3 +164,78 @@ export class Client {
     return new Promise((resolve) => setTimeout(resolve, ms));
   };
 }
+
+type Project = {
+  [key: string]: any
+};
+type Projects = {
+  results: Project[]
+}
+
+export class API {
+  private baseUrl: string = "https://api.banana.dev/v1";
+  private apiKey: string;
+
+  constructor(apiKey: string) {
+    this.apiKey = apiKey.trim();
+  }
+
+  public listProjects = async (): Promise<{json: Projects, status: number}> => {
+    return await this.makeRequest('GET', `${this.baseUrl}/projects`);
+  }
+
+  public getProject = async (projectId: string): Promise<{json: Project, status: number}> => {
+    return await this.makeRequest('GET', `${this.baseUrl}/projects/${projectId}`);
+  }
+
+  public updateProject = async (projectId: string, data: object): Promise<{json: Project, status: number}> => {
+    return await this.makeRequest('PUT', `${this.baseUrl}/projects/${projectId}`, data);
+  }
+
+  private makeRequest = async (method: string, url: string, data: object = {}, headers: object = {}): Promise<{json: any, status: number}> => {
+    const res = await this.makeAPIRequest(method, url, data,  headers)
+    
+    return {json: JSON.parse(res.body), status: res.statusCode};
+  }
+
+  private makeAPIRequest = (method: string, url: string, data: object = {}, headers: object = {}) => {
+    return new Promise<{ statusCode: number, headers: http.IncomingHttpHeaders, body: string }>((resolve, reject) => {
+      const protocol = url.startsWith('https') ? https : http;
+
+      if (method == 'GET') {
+        url += '?' + new URLSearchParams({...data}).toString();
+      }
+ 
+      const req = protocol.request(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-BANANA-API-KEY': this.apiKey,
+          ...headers,
+        },
+      }, (res: http.IncomingMessage) => {
+        let body = '';
+
+        res.on('data', (chunk: string) => {
+          body += chunk;
+        });
+
+        res.on('end', () => {
+          resolve({ statusCode: res.statusCode || 0, headers: res.headers, body });
+        });
+      });
+
+      req.on('error', (error: Error) => {
+        reject(error);
+      });
+
+      if (method === 'POST' || method == 'PUT') {
+        const json = JSON.stringify(data);
+        req.write(json);
+      }
+
+      req.end();
+    });
+  };
+}
