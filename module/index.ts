@@ -194,15 +194,8 @@ export class API {
 
   private makeRequest = async (method: string, url: string, data: object = {}, headers: object = {}): Promise<{json: any, status: number}> => {
     const res = await this.makeAPIRequest(method, url, data,  headers)
-
-    let json = {}
-    try {
-      json = JSON.parse(res.body);
-    } catch {
-      //
-    }
     
-    return {json, status: res.statusCode};
+    return {json: JSON.parse(res.body), status: res.statusCode};
   }
 
   private makeAPIRequest = (method: string, url: string, data: object = {}, headers: object = {}) => {
